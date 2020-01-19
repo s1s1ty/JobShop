@@ -1,4 +1,5 @@
 from .jobshop import *
+from .helper import *
 
 import math
 import random
@@ -9,50 +10,50 @@ class SimulatedAnnealing(object):
     def __init__(self):
         pass
 
-    def __get_neigbors(self, selstate, mode="normal"):
-    neighbors = []
+    def __get_neigbors(self, state, mode="normal"):
+        neighbors = []
 
-    for i in range(len(state)-1):
-        n = state[:]
-        if mode == "normal":
-            swap_index = i + 1
-        elif mode == "random":
-            swap_index = random.randrange(len(state))
+        for i in range(len(state)-1):
+            n = state[:]
+            if mode == "normal":
+                swap_index = i + 1
+            elif mode == "random":
+                swap_index = random.randrange(len(state))
 
-        n[i], n[swap_index] = n[swap_index], n[i]
-        neighbors.append(n)
+            n[i], n[swap_index] = n[swap_index], n[i]
+            neighbors.append(n)
 
-    return neighbors
+        return neighbors
 
 
-    def simulated_annealing(self, jobs, T, termination, halting, mode, decrease):
-    total_jobs = len(jobs)
-    total_machines = len(jobs[0])
+    def __simulated_annealing(self, jobs, T, termination, halting, mode, decrease):
+        total_jobs = len(jobs)
+        total_machines = len(jobs[0])
 
-    state = random_schedule(total_jobs, total_machines)
+        state = random_schedule(total_jobs, total_machines)
 
-    for i in range(halting):
-        T = decrease * float(T)
+        for i in range(halting):
+            T = decrease * float(T)
 
-        for k in range(termination):
-            actual_cost = cost(jobs, state)
+            for k in range(termination):
+                actual_cost = cost(jobs, state)
 
-            for n in self.__get_neigbors(state, mode):
-                n_cost = cost(jobs, n)
-                if n_cost < actual_cost:
-                    state = n
-                    actual_cost = n_cost
-                else:
-                    probability = math.exp(-nCost/T)
-                    if random.random() < probability:
+                for n in self.__get_neigbors(state, mode):
+                    n_cost = cost(jobs, n)
+                    if n_cost < actual_cost:
                         state = n
                         actual_cost = n_cost
+                    else:
+                        probability = math.exp(-n_cost/T)
+                        if random.random() < probability:
+                            state = n
+                            actual_cost = n_cost
 
-    return actual_cost, state
+        return actual_cost, state
 
 
 
-    def simulated_annealing_search(self, jobs, maxTime=None, T=200, termination=10, halting=10, mode="random", decrease=0.8):
+    def simulated_annealing_search(self, jobs, max_time=None, T=200, termination=10, halting=10, mode="random", decrease=0.8):
         num_experiments = 1
 
         solutions = []
@@ -70,7 +71,7 @@ class SimulatedAnnealing(object):
                 start = time.time()
 
                 for i in range(num_experiments):
-                    cost, schedule = self.simulatedAnnealing(jobs, T=T, termination=termination, halting=halting, mode=mode, decrease=decrease)
+                    cost, schedule = self.__simulated_annealing(jobs, T=T, termination=termination, halting=halting, mode=mode, decrease=decrease)
 
                     if cost < best:
                         best = cost
@@ -79,7 +80,7 @@ class SimulatedAnnealing(object):
                 total_experiments += num_experiments
 
                 if max_time and time.time() - t0 > max_time:
-                    raise time_execced("Time is over")
+                    raise TimeExceed("Time is over")
 
                 t = time.time() - start
                 if t > 0:
@@ -92,7 +93,7 @@ class SimulatedAnnealing(object):
                 elif t < 1.5:
                     num_experiments *= 2
 
-            except (KeyboardInterrupt, time_execced) as e:
+            except (KeyboardInterrupt, TimeExceed) as e:
                 print()
                 print("================================================")
                 print("Best solution:")
