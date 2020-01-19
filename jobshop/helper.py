@@ -5,7 +5,7 @@ class JobShop(object):
     def __init__(self):
         self.jobs = None
 
-    def jobs_file_read(self, path=None):
+    def file_read(self, path=None):
         with fileinput.input(files=path) as f:
             next(f)
             jobs = [[(int(machine), int(time)) for machine, time in zip(*[iter(line.split())]*2)]

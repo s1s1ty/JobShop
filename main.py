@@ -1,12 +1,13 @@
 from jobshop import *
 
+
 if __name__ == '__main__':
     job_ob = JobShop()
-    jobs = job_ob.jobs_file_read('examples/3x3')
+    jobs = job_ob.file_read('examples/3x3')
 
     m = len(job_ob.jobs[0])
     j = len(job_ob.jobs)
-    print("Chosen file:", 'instances/3x3')
+    print("Chosen file:", 'examples/3x3')
     print("Number of machines:", m)
     print("Number of jobs:", j)
     job_ob.print_jobs(job_ob.jobs)
