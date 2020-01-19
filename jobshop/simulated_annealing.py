@@ -1,4 +1,3 @@
-from .jobshop import *
 from .helper import *
 
 import math
@@ -9,6 +8,32 @@ import time
 class SimulatedAnnealing(object):
     def __init__(self):
         pass
+
+    def __random_schedule(self, j, m):
+        schedule = [i for i in list(range(j)) for _ in range(m)]
+        random.shuffle(schedule)
+
+        return schedule
+
+    def __cost(self, jobs, schedule):
+        j = len(jobs)
+        m = len(jobs[0])
+
+        tj = [0]*j
+        tm = [0]*m
+
+        ij = [0]*j
+
+        for i in schedule:
+            machine, time = jobs[i][ij[i]]
+            ij[i] += 1
+
+            start = max(tj[i], tm[machine])
+            end = start + time
+            tj[i] = end
+            tm[machine] = end
+
+        return max(tm)
 
     def __get_neigbors(self, state, mode="normal"):
         neighbors = []
@@ -30,16 +55,16 @@ class SimulatedAnnealing(object):
         total_jobs = len(jobs)
         total_machines = len(jobs[0])
 
-        state = random_schedule(total_jobs, total_machines)
+        state = self.__random_schedule(total_jobs, total_machines)
 
         for i in range(halting):
             T = decrease * float(T)
 
             for k in range(termination):
-                actual_cost = cost(jobs, state)
+                actual_cost = self.__cost(jobs, state)
 
                 for n in self.__get_neigbors(state, mode):
-                    n_cost = cost(jobs, n)
+                    n_cost = self.__cost(jobs, n)
                     if n_cost < actual_cost:
                         state = n
                         actual_cost = n_cost
@@ -50,8 +75,6 @@ class SimulatedAnnealing(object):
                             actual_cost = n_cost
 
         return actual_cost, state
-
-
 
     def simulated_annealing_search(self, jobs, max_time=None, T=200, termination=10, halting=10, mode="random", decrease=0.8):
         num_experiments = 1
@@ -64,7 +87,7 @@ class SimulatedAnnealing(object):
 
         j = len(jobs)
         m = len(jobs[0])
-        rs = random_schedule(j, m)
+        rs = self.__random_schedule(j, m)
 
         while True:
             try:
